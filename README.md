@@ -1,4 +1,4 @@
-# REACT ES6 Base Project
+# Angular Base Project
 ##Description
 Base Project using Angular and uiRouter.
 Gulp Script for starting up a server with liveReload and CSS Injection.
