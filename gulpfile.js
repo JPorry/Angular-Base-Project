@@ -85,10 +85,12 @@ gulp.task('deployJS:debug', ['lint', 'reConfig'], function(cb){
 });
 
 gulp.task('package:debug', ['deployJS:debug', 'sass', 'clean:HTML'], function(){
+    var scripts = globule.find(['js/**/*.js'], {srcBase: config.build_dir});
+    scripts.push(scripts.shift());
     gulp.src('index.html')
         .pipe(
             htmlReplace({
-                appJs: globule.find(['js/**/*.js'], {srcBase: config.build_dir}),
+                appJs: scripts,
                 dependencies: config.dependencies.map(function(path){ return 'vendor/' + path.substr(path.lastIndexOf('/') + 1); })
             })
         )
