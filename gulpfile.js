@@ -45,7 +45,15 @@ gulp.task('clean', function(cb){
     });
 });
 
-gulp.task('sass', ['clean:CSS'], function(cb){
+gulp.task('copyStaticCSS', ['clean:CSS'], function(cb){
+    gulp.src(config.dependencies.css)
+        .pipe(gulp.dest(config.build_dir + '/css/'))
+        .on('finish', function(){
+            cb();
+        })
+});
+
+gulp.task('sass', ['copyStaticCSS'], function(cb){
     gulp.src('./src/sass/app.scss')
         .pipe(sass({outputStyle:'compressed'}))
         .pipe(gulp.dest('./' + config.build_dir + '/css'))
@@ -74,7 +82,7 @@ gulp.task('deployJS:debug', ['lint', 'reConfig'], function(cb){
             ready = true;
         });
 
-    gulp.src(config.dependencies)
+    gulp.src(config.dependencies.vendor)
         .pipe(gulp.dest(config.build_dir + '/vendor'))
         .on('finish', function(){
             if(ready){
@@ -86,12 +94,12 @@ gulp.task('deployJS:debug', ['lint', 'reConfig'], function(cb){
 
 gulp.task('package:debug', ['deployJS:debug', 'sass', 'clean:HTML'], function(){
     var scripts = globule.find(['js/**/*.js'], {srcBase: config.build_dir});
-    scripts.push(scripts.shift());
     gulp.src('index.html')
         .pipe(
             htmlReplace({
                 appJs: scripts,
-                dependencies: config.dependencies.map(function(path){ return 'vendor/' + path.substr(path.lastIndexOf('/') + 1); })
+                dependencies: config.dependencies.vendor.map(function(path){ return 'vendor/' + path.substr(path.lastIndexOf('/') + 1); }),
+                css: globule.find(['css/**/*.css', '!css/app.css'], {srcBase: config.build_dir})
             })
         )
         .pipe(gulp.dest(config.build_dir, {overwrite: true}));
